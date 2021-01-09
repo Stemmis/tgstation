@@ -8,4 +8,6 @@ NightWitches = Host
 VonCarstein = Host
 LilPenpusher = Game Master
 Knifepony = Game Master
-Cormorant = Game Admin
+Cormorant = Game Master
+Nayser = Game Admin
+Stemis = Game Admin
