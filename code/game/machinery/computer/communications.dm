@@ -86,6 +86,9 @@
 	if (.)
 		return
 
+	if (!has_communication())
+		return
+
 	. = TRUE
 
 	switch (action)
@@ -295,8 +298,9 @@
 				authorize_name = "Unknown"
 				to_chat(usr, "<span class='warning'>[src] lets out a quiet alarm as its login is overridden.</span>")
 				playsound(src, 'sound/machines/terminal_alert.ogg', 25, FALSE)
-			else
-				var/obj/item/card/id/id_card = usr.get_idcard(hand_first = TRUE)
+			else if(isliving(usr))
+				var/mob/living/L = usr
+				var/obj/item/card/id/id_card = L.get_idcard(hand_first = TRUE)
 				if (check_access(id_card))
 					authenticated = TRUE
 					authorize_access = id_card.access
@@ -322,6 +326,7 @@
 	var/list/data = list(
 		"authenticated" = FALSE,
 		"emagged" = FALSE,
+		"hasConnection" = has_communication(),
 	)
 
 	var/ui_state = issilicon(user) ? cyborg_state : state
@@ -435,6 +440,12 @@
 		"maxMessageLength" = MAX_MESSAGE_LEN,
 	)
 
+/// Returns whether or not the communications console can communicate with the station
+/obj/machinery/computer/communications/proc/has_communication()
+	var/turf/current_turf = get_turf(src)
+	var/z_level = current_turf.z
+	return is_station_level(z_level) || is_centcom_level(z_level)
+
 /obj/machinery/computer/communications/proc/set_state(mob/user, new_state)
 	if (issilicon(user))
 		cyborg_state = new_state
@@ -494,7 +505,6 @@
 			status_signal.data["picture_state"] = data1
 
 	frequency.post_signal(src, status_signal)
-
 
 /obj/machinery/computer/communications/Destroy()
 	GLOB.shuttle_caller_list -= src
